@@ -511,9 +511,13 @@ void vFCU_LASERDIST__Process_Packet_ASCII(void)
 	//save prev
 	sFCU.sLaserDist.s32PrevDistance_mm = sFCU.sLaserDist.s32Distance_mm;
 	sFCU.sLaserDist.s32PrevVelocity_mms = sFCU.sLaserDist.s32Velocity_mms;
-   sFCU.sLaserDist.s32PrevAccel_mmss = sFCU.sLaserDist.s32Accel_mmss;
+  sFCU.sLaserDist.s32PrevAccel_mmss = sFCU.sLaserDist.s32Accel_mmss;
+
+	}//switch
 
 }
+
+
 
 /***************************************************************************//**
  * @brief
