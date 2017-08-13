@@ -207,7 +207,7 @@ void vFCU_LASERDIST__Process(void)
 				if(0)
 				{
 					//Operation mode, No. 1
-					//<ESC>, P1, <CR>
+					//<ESC>, P, 1, <CR>
 					u8Array[0] = 0x1BU;
 					u8Array[1] = 0x50U;
 					u8Array[2] = 0x31U;
@@ -270,10 +270,6 @@ void vFCU_LASERDIST__Process(void)
 					u8Array[0] = 0x1BU;
 					u8Array[1] = 0x63U;
 					u8Array[2] = 0x0DU;
-
-					//send it.
-					vSIL3_SC16__Tx_ByteArray(C_FCU__SC16_FWD_LASER_INDEX, (Luint8*)&u8Array[0], 3U);
-				}
 
 				if(0)
 				{
@@ -455,7 +451,6 @@ void vFCU_LASERDIST__Process_Packet(void)
   sFCU.sLaserDist.s32PrevAccel_mmss = sFCU.sLaserDist.s32Accel_mmss;
 
 
-
 }
 
 /***************************************************************************//**
@@ -524,18 +519,6 @@ void vFCU_LASERDIST__Process_Packet_ASCII(void)
 
 	//do it.
 	sFCU.sLaserDist.s32Velocity_mms = (Lint32)f32Delta;
-
-	//////////////////
-  //compute accel
-  f32Delta = (Lfloat32)sFCU.sLaserDist.s32PrevVelocity_mms;
-  f32Delta -= sFCU.sLaserDist.s32Velocity_mms;
-
-  //100hz
-  f32Delta *= .1F;
-
-  //do it.
-  sFCU.sLaserDist.s32Accel_mmss = (Lint32)f32Delta;
-
 
 	//save prev
 	sFCU.sLaserDist.s32PrevDistance_mm = sFCU.sLaserDist.s32Distance_mm;
@@ -633,6 +616,7 @@ void vFCU_LASERDIST__Append_Byte_ASCII(Luint8 u8Value)
 				//we are not at the right point for detection of the packet start, loop back
 			}
 			break;
+
 
 		case LASERDIST_RX__BYTE_1:
 			//check if second byte is equals "Z" for distance > 99m
