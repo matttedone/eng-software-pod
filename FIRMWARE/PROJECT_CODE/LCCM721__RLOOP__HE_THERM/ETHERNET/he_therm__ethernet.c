@@ -24,6 +24,8 @@
 
 //Main structure
 extern TS_HET__MAIN sHET;
+extern Luint8 Sol_Open[4];
+       Luint8 HET_ManualMode = 1; // manual mode is on.
 
 //locals
 void vHETHERM_ETH__Transmit(E_NET__PACKET_T ePacketType);
@@ -180,7 +182,7 @@ void vHETHERM_ETH__Transmit(E_NET__PACKET_T ePacketType)
 	switch(ePacketType)
 	{
 		case NET_PKT__HET__SEND_THERM_PACKET:
-			u16Length = 16U + 4U + 1U + ((4U + 8U) * C_LOCALDEF__LCCM644__MAX_DEVICES) + 6U + 12U + 12U + 3U;
+			u16Length = 16U + 4U + 1U + ((4U + 8U) * C_LOCALDEF__LCCM644__MAX_DEVICES) + 6U + 12U + 12U + 3U + 5U;
 			break;
 
 		default:
@@ -265,6 +267,14 @@ void vHETHERM_ETH__Transmit(E_NET__PACKET_T ePacketType)
 				pu8Buffer[2] = sHET.sSol.sBrake.u8ChannelOverTemp_State;
 				pu8Buffer += 3U;
 
+				pu8Buffer[0] = Sol_Open[0];
+				pu8Buffer[1] = Sol_Open[1];
+				pu8Buffer[2] = Sol_Open[2];
+				pu8Buffer[3] = Sol_Open[3];
+				pu8Buffer[4] = HET_ManualMode;
+				pu8Buffer += 5U;
+
+
 				break;
 
 			default:
@@ -332,6 +342,22 @@ void vHETHERM_ETH__RxSafeUDP(Luint8 *pu8Payload, Luint16 u16PayloadLength, Luint
 			/** Manual control of the solenoids */
 			case NET_PKT__HET__MANUAL_CONTROL:
 
+			    if (u32Block[0U] == 0xAA117799U)
+			    {
+			        switch(u32Block[1U])
+			        {
+			        case 0U:
+			            HET_ManualMode = 0U; // turn Manual mode off; or auto mode on
+			            break;
+
+			        case 1U:
+			            HET_ManualMode = 1U;  // turn Manual mode ON; or auto mode off
+			            break;
+
+			        default:
+			            break;
+			        }
+			    }
 				//check our key
 				if(u32Block[0U] == 0xAA117788U)
 				{
@@ -344,10 +370,12 @@ void vHETHERM_ETH__RxSafeUDP(Luint8 *pu8Payload, Luint16 u16PayloadLength, Luint
 							if(u32Block[2U] == 1U)
 							{
 								vHETHERM_SOL__Open(0U);
+								Sol_Open[0] = 1U;
 							}
 							else
 							{
 								vHETHERM_SOL__Close(0U);
+								Sol_Open[0] = 0U;
 							}
 
 							break;
@@ -356,10 +384,12 @@ void vHETHERM_ETH__RxSafeUDP(Luint8 *pu8Payload, Luint16 u16PayloadLength, Luint
 							if(u32Block[2U] == 1U)
 							{
 								vHETHERM_SOL__Open(1U);
+								Sol_Open[1] = 1U;
 							}
 							else
 							{
 								vHETHERM_SOL__Close(1U);
+								Sol_Open[1] = 0U;
 							}
 							break;
 
@@ -367,10 +397,12 @@ void vHETHERM_ETH__RxSafeUDP(Luint8 *pu8Payload, Luint16 u16PayloadLength, Luint
 							if(u32Block[2U] == 1U)
 							{
 								vHETHERM_SOL__Open(2U);
+								Sol_Open[2] = 1U;
 							}
 							else
 							{
 								vHETHERM_SOL__Close(2U);
+								Sol_Open[2] = 0U;
 							}
 							break;
 
@@ -378,10 +410,12 @@ void vHETHERM_ETH__RxSafeUDP(Luint8 *pu8Payload, Luint16 u16PayloadLength, Luint
 							if(u32Block[2U] == 1U)
 							{
 								vHETHERM_SOL__Open(3U);
+								Sol_Open[3] = 1U;
 							}
 							else
 							{
 								vHETHERM_SOL__Close(3U);
+								Sol_Open[3] = 0U;
 							}
 							break;
 							
